@@ -64,7 +64,7 @@ def train_iris_dataset(
 if __name__ == "__main__":
     # testing train_iris_dataset
 
-    data, target, target_names, feature_names = load_iris_dataset()
+    data, target, _, _ = load_iris_dataset()
     data = scale_iris_dataset(data)
     train_data, val_data, train_target, val_target = train_test_data_split(data=data, target=target)
     train_iris_dataset(train_data=train_data, train_target=train_target)

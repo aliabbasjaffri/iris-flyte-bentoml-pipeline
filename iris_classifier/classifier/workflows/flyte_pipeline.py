@@ -3,8 +3,6 @@ Flyte Pipeline for Iris Dataset classification
 ------------
 """
 from numpy import ndarray
-from torch import nn
-
 from train import train_iris_dataset
 from flytekit import task, workflow
 from model import IrisClassificationModel
