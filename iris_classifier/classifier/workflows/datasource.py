@@ -33,3 +33,13 @@ def train_test_data_split(
     print("Validation:", np.bincount(val_target) / float(len(val_target)) * 100.0)
 
     return train_data, val_data, train_target, val_target
+
+
+if __name__ == "__main__":
+    _, _, target_names, feature_names = load_iris_dataset()
+
+    assert len(target_names) == 3
+    assert len(feature_names) == 4
+
+    print(target_names)
+    print(feature_names)

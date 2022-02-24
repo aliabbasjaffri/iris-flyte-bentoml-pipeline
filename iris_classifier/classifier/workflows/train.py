@@ -1,10 +1,14 @@
 import torch
 from model import IrisClassificationModel
 import numpy as np
+from numpy import ndarray
 from torch import nn
+from datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
 
 
-def train_iris_dataset(train_data, train_target) -> IrisClassificationModel:
+def train_iris_dataset(
+    train_data: ndarray, train_target: ndarray
+) -> IrisClassificationModel:
 
     # Define training hyperprameters.
     batch_size = 60
@@ -55,3 +59,12 @@ def train_iris_dataset(train_data, train_target) -> IrisClassificationModel:
         running_loss: float = 0.0
 
     return model
+
+
+if __name__ == "__main__":
+    # testing train_iris_dataset
+
+    data, target, target_names, feature_names = load_iris_dataset()
+    data = scale_iris_dataset(data)
+    train_data, val_data, train_target, val_target = train_test_data_split(data=data, target=target)
+    train_iris_dataset(train_data=train_data, train_target=train_target)
