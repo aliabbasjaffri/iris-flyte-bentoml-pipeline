@@ -6,7 +6,9 @@ class IrisClassificationModel(nn.Module):
     def __init__(self, input_dim: int, hidden_features: int = 50):
         super(IrisClassificationModel, self).__init__()
         self.layer1 = nn.Linear(in_features=input_dim, out_features=hidden_features)
-        self.layer2 = nn.Linear(in_features=hidden_features, out_features=hidden_features)
+        self.layer2 = nn.Linear(
+            in_features=hidden_features, out_features=hidden_features
+        )
         self.layer3 = nn.Linear(in_features=hidden_features, out_features=3)
 
     def forward(self, x):
