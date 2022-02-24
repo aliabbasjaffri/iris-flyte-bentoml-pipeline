@@ -13,8 +13,8 @@ docker_client = docker.from_env()
 
 IMAGE_NAME = "flytelab"
 REGISTRY = "ghcr.io/flyteorg"
-PROJECT_NAME = "flytelab-temp_project".replace("_", "-")
-DESCRIPTION = "checking out this temp project"
+PROJECT_NAME = "iris_classifier".replace("_", "-")
+DESCRIPTION = "Iris classifier project"
 
 
 def create_project(remote: bool):
