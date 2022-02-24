@@ -117,7 +117,7 @@ def serialize(tag: str):
             "-c",
             "flyte.config",
             "--pkgs",
-            "temp_project",
+            "classifier",
             "package",
             "--force",
             "--in-container-source-path",
