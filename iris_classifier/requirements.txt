@@ -8,3 +8,4 @@ bentoml>=1.0.0a
 Pillow==9.0.1
 mlflow==1.23.1
 flytekit==0.30.3
+typer==0.4.0
