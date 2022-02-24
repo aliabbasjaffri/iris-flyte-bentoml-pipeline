@@ -4,28 +4,28 @@ import numpy as np
 from torch import nn
 
 
-def train_dataset(train_data, train_target):
+def train_iris_dataset(train_data, train_target) -> IrisClassificationModel:
 
-    #Define training hyperprameters.
+    # Define training hyperprameters.
     batch_size = 60
     num_epochs = 500
     learning_rate = 0.01
     size_hidden = 100
 
-    #Calculate some other hyperparameters based on data.
-    batch_no = len(train_data) // batch_size  #batches
-    cols = train_data.shape[1] #Number of columns in input matrix
+    # Calculate some other hyperparameters based on data.
+    batch_no = len(train_data) // batch_size  # batches
+    cols = train_data.shape[1]  # Number of columns in input matrix
     classes = len(np.unique(train_target))
 
     model = IrisClassificationModel(input_dim=cols)
 
-
-    #Adam is a specific flavor of gradient decent which is typically better
+    # Adam is a specific flavor of gradient decent which is typically better
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
 
     from sklearn.utils import shuffle
     from torch.autograd import Variable
+
     running_loss = 0.0
     for epoch in range(num_epochs):
         # Shuffle just mixes up the dataset between epocs
@@ -51,5 +51,7 @@ def train_dataset(train_data, train_target):
             # print statistics
             running_loss += loss.item()
 
-        print('Epoch {}'.format(epoch + 1), "loss: ", running_loss)
+        print("Epoch {}".format(epoch + 1), "loss: ", running_loss)
         running_loss: float = 0.0
+
+    return model
