@@ -156,6 +156,7 @@ def main(remote: bool = False, domain: str = "development"):
     create_project(remote)
     version = get_version()
     tag = get_tag(version)
+    print(tag)
     if remote:
         docker_push(docker_build(tag, remote))
     else:
