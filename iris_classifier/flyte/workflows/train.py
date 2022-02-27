@@ -70,5 +70,7 @@ if __name__ == "__main__":
 
     data, target, _, _ = load_iris_dataset()
     data = scale_iris_dataset(data)
-    train_data, val_data, train_target, val_target = train_test_data_split(data=data, target=target)
+    train_data, val_data, train_target, val_target = train_test_data_split(
+        data=data, target=target
+    )
     train_iris_dataset(train_data=train_data, train_target=train_target)

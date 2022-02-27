@@ -37,7 +37,9 @@ def train_test_split_iris_data(
 
 
 @task(cache=True, cache_version="1.0")
-def train_iris_data(train_data: ndarray, train_target: ndarray) -> IrisClassificationModel:
+def train_iris_data(
+    train_data: ndarray, train_target: ndarray
+) -> IrisClassificationModel:
     model = train_iris_dataset(train_data=train_data, train_target=train_target)
     return model
 
