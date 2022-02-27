@@ -1,9 +1,13 @@
+try:
+    from model import IrisClassificationModel
+    from datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+except ImportError:
+    from .model import IrisClassificationModel
+    from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
 import torch
-from model import IrisClassificationModel
 import numpy as np
-from numpy import ndarray
 from torch import nn
-from datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+from numpy import ndarray
 
 
 def train_iris_dataset(
