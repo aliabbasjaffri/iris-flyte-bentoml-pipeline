@@ -2,11 +2,16 @@
 Flyte Pipeline for Iris Dataset classification
 ------------
 """
+try:
+    from train import train_iris_dataset
+    from model import IrisClassificationModel
+    from datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+except ImportError:
+    from .train import train_iris_dataset
+    from .model import IrisClassificationModel
+    from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
 from numpy import ndarray
-from train import train_iris_dataset
 from flytekit import task, workflow
-from model import IrisClassificationModel
-from datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
 
 
 @task
