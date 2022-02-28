@@ -83,23 +83,24 @@ def train_iris_dataset(
 
     _model = wandb.Artifact('iris-classifier', type='model')
     wandb.log_artifact(_model)
-
-    wandb.finish()
     return model
 
 
-def calculate_accuracy(model, x, y):
+def calculate_accuracy(model: IrisClassificationModel, data: ndarray, target: ndarray, accuracy_type: str = "train"):
     """
     This function will return the accuracy if passed x and y or return predictions if just passed x.
     """
     # Evaluate the model with the test set.
-    X = Variable(torch.FloatTensor(x))
-    result = model(X) #This outputs the probability for each class.
+    X = Variable(torch.FloatTensor(data))
+
+    # This outputs the probability for each class.
+    result = model(X)
     _, labels = torch.max(result.data, 1)
-    if len(y) != 0:
-        num_right = np.sum(labels.data.numpy() == y)
-        print('Accuracy {:.2f}'.format(num_right / len(y)), "for a total of ", len(y), "records")
-        return pd.DataFrame(data= {'actual': y, 'predicted': labels.data.numpy()})
+    if len(target) != 0:
+        num_right = np.sum(labels.data.numpy() == target)
+        print('Accuracy {:.2f}'.format(num_right / len(target)), "for a total of ", len(target), "records")
+        wandb.log({f"{accuracy_type}_accuracy": num_right / len(target), "records": len(target)})
+        return pd.DataFrame(data={'actual': target, 'predicted': labels.data.numpy()})
     else:
         print("returning predictions")
         return labels.data.numpy()
@@ -113,4 +114,6 @@ if __name__ == "__main__":
     train_data, val_data, train_target, val_target = train_test_data_split(
         data=data, target=target
     )
-    train_iris_dataset(train_data=train_data, train_target=train_target)
+    model = train_iris_dataset(train_data=train_data, train_target=train_target)
+    train_accuracy = calculate_accuracy(model=model, data=train_data, target=train_target, accuracy_type="train")
+    test_accuracy = calculate_accuracy(model=model, data=val_data, target=val_target, accuracy_type="test")

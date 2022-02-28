@@ -3,13 +3,14 @@ Flyte Pipeline for Iris Dataset classification
 ------------
 """
 try:
-    from train import train_iris_dataset
+    from train import train_iris_dataset, calculate_accuracy
     from model import IrisClassificationModel
     from datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
 except ImportError:
-    from .train import train_iris_dataset
+    from .train import train_iris_dataset, calculate_accuracy
     from .model import IrisClassificationModel
     from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+import pandas as pd
 from numpy import ndarray
 from flytekit import task, workflow
 
@@ -44,8 +45,16 @@ def train_iris_data(
     return model
 
 
+@task
+def test_iris_model(
+    model: IrisClassificationModel, data: ndarray, target: ndarray, accuracy_type: str
+) -> pd.DataFrame:
+    accuracy = calculate_accuracy(model=model, data=data, target=target, accuracy_type=accuracy_type)
+    return accuracy
+
+
 @workflow
-def my_wf() -> IrisClassificationModel:
+def my_wf():
 
     # take care of keywords
     # flyte takes that seriously
@@ -56,7 +65,8 @@ def my_wf() -> IrisClassificationModel:
         data=scaled_data, target=target
     )
     model = train_iris_data(train_data=train_data, train_target=train_target)
-    return model
+    train_accuracy = test_iris_model(model=model, data=train_data, target=train_target, accuracy_type="train")
+    test_accuracy = test_iris_model(model=model, data=val_data, target=val_target, accuracy_type="test")
 
 
 if __name__ == "__main__":
