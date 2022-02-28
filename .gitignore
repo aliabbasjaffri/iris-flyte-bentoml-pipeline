@@ -137,3 +137,6 @@ _pb_output/*
 
 flyte-package.tgz
 
+.DS_Store
+
+wandb/
