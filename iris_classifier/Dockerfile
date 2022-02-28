@@ -28,6 +28,9 @@ RUN pip install --no-cache-dir -r /root/requirements.txt
 # Copy the actual code
 COPY . /root
 
+ENV WANDB_USERNAME "aliabbasjaffri"
+ENV WANDB_API_KEY "2fdef5418e9d0e0f6fe1cf9d4c3e566ab514b861"
+
 # This tag is supplied by the build script and will be used to determine the version
 # when registering tasks, workflows, and launch plans
 ARG tag
