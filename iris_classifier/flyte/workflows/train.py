@@ -8,6 +8,7 @@ import os
 import wandb
 import torch
 import numpy as np
+import pandas as pd
 from torch import nn
 from numpy import ndarray
 from sklearn.utils import shuffle
@@ -85,6 +86,23 @@ def train_iris_dataset(
 
     wandb.finish()
     return model
+
+
+def calculate_accuracy(model, x, y):
+    """
+    This function will return the accuracy if passed x and y or return predictions if just passed x.
+    """
+    # Evaluate the model with the test set.
+    X = Variable(torch.FloatTensor(x))
+    result = model(X) #This outputs the probability for each class.
+    _, labels = torch.max(result.data, 1)
+    if len(y) != 0:
+        num_right = np.sum(labels.data.numpy() == y)
+        print('Accuracy {:.2f}'.format(num_right / len(y)), "for a total of ", len(y), "records")
+        return pd.DataFrame(data= {'actual': y, 'predicted': labels.data.numpy()})
+    else:
+        print("returning predictions")
+        return labels.data.numpy()
 
 
 if __name__ == "__main__":
