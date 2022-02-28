@@ -4,21 +4,31 @@ try:
 except ImportError:
     from .model import IrisClassificationModel
     from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+import os
+import wandb
 import torch
 import numpy as np
 from torch import nn
 from numpy import ndarray
+from sklearn.utils import shuffle
+from torch.autograd import Variable
+
+
+def wandb_setup():
+    wandb.login()
+    wandb.init(project="iris-classifier", entity=os.environ.get("WANDB_USERNAME", "aliabbasjaffri"))
 
 
 def train_iris_dataset(
     train_data: ndarray, train_target: ndarray
 ) -> IrisClassificationModel:
+    wandb_setup()
 
     # Define training hyperprameters.
     batch_size = 60
     num_epochs = 500
     learning_rate = 0.01
-    size_hidden = 100
+    hidden_features = 50
 
     # Calculate some other hyperparameters based on data.
     batch_no = len(train_data) // batch_size  # batches
@@ -31,10 +41,17 @@ def train_iris_dataset(
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
     criterion = nn.CrossEntropyLoss()
 
-    from sklearn.utils import shuffle
-    from torch.autograd import Variable
+    wandb.config = {
+        "learning_rate": learning_rate,
+        "epochs": num_epochs,
+        "batch_size": batch_size,
+        "hidden_features": hidden_features,
+        "optimizer": "Adam"
+    }
 
+    wandb.watch(model)
     running_loss = 0.0
+
     for epoch in range(num_epochs):
         # Shuffle just mixes up the dataset between epocs
         train_data, train_target = shuffle(train_data, train_target)
@@ -58,10 +75,15 @@ def train_iris_dataset(
 
             # print statistics
             running_loss += loss.item()
+            wandb.log({"loss": loss.item(), "epoch": epoch})
 
         print("Epoch {}".format(epoch + 1), "loss: ", running_loss)
         running_loss: float = 0.0
 
+    _model = wandb.Artifact('iris-classifier', type='model')
+    wandb.log_artifact(_model)
+
+    wandb.finish()
     return model
 
 

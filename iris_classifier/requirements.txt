@@ -4,8 +4,8 @@ matplotlib
 scikit-learn==1.0.2
 bentoml>=1.0.0a
 Pillow==9.0.1
-mlflow==1.23.1
 flytekit==0.30.3
 typer==0.4.0
 torch==1.10.2
 torchvision==0.11.3
+wandb==0.12.10
