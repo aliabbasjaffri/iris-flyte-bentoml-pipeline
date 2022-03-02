@@ -12,7 +12,7 @@ docker_client = docker.from_env()
 
 
 IMAGE_NAME = "iris_classifier"
-REGISTRY = "ghcr.io/flyteorg"
+REGISTRY = "ghcr.io/aliabbasjaffri"
 PROJECT_NAME = "iris_classifier".replace("_", "-")
 DESCRIPTION = "Iris classifier project"
 
