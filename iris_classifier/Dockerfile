@@ -1,4 +1,4 @@
-FROM python:3.7-slim-buster
+FROM python:3.8-slim-buster
 
 WORKDIR /root
 ENV VENV /opt/venv
@@ -23,6 +23,7 @@ ENV PATH="${VENV}/bin:$PATH"
 
 # Install Python dependencies
 COPY ./requirements.txt /root
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r /root/requirements.txt
 
 # Copy the actual code
