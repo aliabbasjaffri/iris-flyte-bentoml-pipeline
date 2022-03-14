@@ -10,8 +10,11 @@ except ImportError:
     from .train import train_iris_dataset, calculate_accuracy
     from .model import IrisClassificationModel
     from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+import torch
+import bentoml
 import pandas as pd
 from numpy import ndarray
+from torch.autograd import Variable
 from flytekit import task, workflow
 
 
@@ -53,11 +56,25 @@ def test_iris_model(
     return accuracy
 
 
+@task
+def save_model(model: IrisClassificationModel, artifact_name: str) -> None:
+    bentoml.pytorch.save(name=artifact_name, model=model)
+
+
+@task
+def test_model_deployment(artifact_name: str) -> None:
+    test_runner = bentoml.pytorch.load_runner(tag=artifact_name)
+    x = Variable(torch.FloatTensor([5.9, 3., 5.1, 1.8]))
+    print(test_runner.run(x))
+
+
 @workflow
 def my_wf():
 
     # take care of keywords
     # flyte takes that seriously
+
+    artifact_name = "iris_classifier"
 
     data, target, target_names, feature_names = get_iris_data()
     scaled_data = scale_iris_data(data=data)
@@ -67,6 +84,8 @@ def my_wf():
     model = train_iris_data(train_data=train_data, train_target=train_target)
     train_accuracy = test_iris_model(model=model, data=train_data, target=train_target, accuracy_type="train")
     test_accuracy = test_iris_model(model=model, data=val_data, target=val_target, accuracy_type="test")
+    save_model(model=model, artifact_name=artifact_name)
+    test_model_deployment(artifact_name=artifact_name)
 
 
 if __name__ == "__main__":
