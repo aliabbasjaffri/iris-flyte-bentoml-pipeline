@@ -10,12 +10,20 @@ except ImportError:
     from .train import train_iris_dataset, calculate_accuracy
     from .model import IrisClassificationModel
     from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
+import os
 import torch
+import wandb
 import bentoml
 import pandas as pd
 from numpy import ndarray
 from torch.autograd import Variable
 from flytekit import task, workflow
+
+
+wandb.init(
+    project="iris-classifier",
+    entity=os.environ.get("WANDB_USERNAME", "aliabbasjaffri"),
+)
 
 
 @task
@@ -52,7 +60,9 @@ def train_iris_data(
 def test_iris_model(
     model: IrisClassificationModel, data: ndarray, target: ndarray, accuracy_type: str
 ) -> pd.DataFrame:
-    accuracy = calculate_accuracy(model=model, data=data, target=target, accuracy_type=accuracy_type)
+    accuracy = calculate_accuracy(
+        model=model, data=data, target=target, accuracy_type=accuracy_type
+    )
     return accuracy
 
 
@@ -64,12 +74,12 @@ def save_model(model: IrisClassificationModel, artifact_name: str) -> None:
 @task
 def test_model_deployment(artifact_name: str) -> None:
     test_runner = bentoml.pytorch.load_runner(tag=artifact_name)
-    x = Variable(torch.FloatTensor([5.9, 3., 5.1, 1.8]))
+    x = Variable(torch.FloatTensor([5.9, 3.0, 5.1, 1.8]))
     print(test_runner.run(x))
 
 
 @workflow
-def my_wf():
+def my_wf() -> (pd.DataFrame, pd.DataFrame):
 
     # take care of keywords
     # flyte takes that seriously
@@ -82,11 +92,20 @@ def my_wf():
         data=scaled_data, target=target
     )
     model = train_iris_data(train_data=train_data, train_target=train_target)
-    train_accuracy = test_iris_model(model=model, data=train_data, target=train_target, accuracy_type="train")
-    test_accuracy = test_iris_model(model=model, data=val_data, target=val_target, accuracy_type="test")
+    _train_accuracy = test_iris_model(
+        model=model, data=train_data, target=train_target, accuracy_type="train"
+    )
+    _test_accuracy = test_iris_model(
+        model=model, data=val_data, target=val_target, accuracy_type="test"
+    )
+
     save_model(model=model, artifact_name=artifact_name)
     test_model_deployment(artifact_name=artifact_name)
 
+    return _train_accuracy, _test_accuracy
+
 
 if __name__ == "__main__":
-    my_wf()
+    train_accuracy, test_accuracy = my_wf()
+
+    wandb.log({"train_accuracy": train_accuracy, "test_accuracy": test_accuracy})
