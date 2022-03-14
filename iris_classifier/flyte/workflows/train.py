@@ -4,7 +4,6 @@ try:
 except ImportError:
     from .model import IrisClassificationModel
     from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
-import os
 import wandb
 import torch
 import numpy as np
@@ -15,15 +14,9 @@ from sklearn.utils import shuffle
 from torch.autograd import Variable
 
 
-def wandb_setup():
-    wandb.login()
-    wandb.init(project="iris-classifier", entity=os.environ.get("WANDB_USERNAME", "aliabbasjaffri"))
-
-
 def train_iris_dataset(
     train_data: ndarray, train_target: ndarray
 ) -> IrisClassificationModel:
-    wandb_setup()
 
     # Define training hyperprameters.
     batch_size = 60
@@ -47,7 +40,7 @@ def train_iris_dataset(
         "epochs": num_epochs,
         "batch_size": batch_size,
         "hidden_features": hidden_features,
-        "optimizer": "Adam"
+        "optimizer": "Adam",
     }
 
     wandb.watch(model)
@@ -81,12 +74,17 @@ def train_iris_dataset(
         print("Epoch {}".format(epoch + 1), "loss: ", running_loss)
         running_loss: float = 0.0
 
-    _model = wandb.Artifact('iris-classifier', type='model')
+    _model = wandb.Artifact("iris-classifier", type="model")
     wandb.log_artifact(_model)
     return model
 
 
-def calculate_accuracy(model: IrisClassificationModel, data: ndarray, target: ndarray, accuracy_type: str = "train"):
+def calculate_accuracy(
+    model: IrisClassificationModel,
+    data: ndarray,
+    target: ndarray,
+    accuracy_type: str = "train",
+):
     """
     This function will return the accuracy if passed x and y or return predictions if just passed x.
     """
@@ -98,9 +96,19 @@ def calculate_accuracy(model: IrisClassificationModel, data: ndarray, target: nd
     _, labels = torch.max(result.data, 1)
     if len(target) != 0:
         num_right = np.sum(labels.data.numpy() == target)
-        print('Accuracy {:.2f}'.format(num_right / len(target)), "for a total of ", len(target), "records")
-        wandb.log({f"{accuracy_type}_accuracy": num_right / len(target), "records": len(target)})
-        return pd.DataFrame(data={'actual': target, 'predicted': labels.data.numpy()})
+        print(
+            "Accuracy {:.2f}".format(num_right / len(target)),
+            "for a total of ",
+            len(target),
+            "records",
+        )
+        wandb.log(
+            {
+                f"{accuracy_type}_accuracy": num_right / len(target),
+                "records": len(target),
+            }
+        )
+        return pd.DataFrame(data={"actual": target, "predicted": labels.data.numpy()})
     else:
         print("returning predictions")
         return labels.data.numpy()
@@ -115,5 +123,9 @@ if __name__ == "__main__":
         data=data, target=target
     )
     model = train_iris_dataset(train_data=train_data, train_target=train_target)
-    train_accuracy = calculate_accuracy(model=model, data=train_data, target=train_target, accuracy_type="train")
-    test_accuracy = calculate_accuracy(model=model, data=val_data, target=val_target, accuracy_type="test")
+    train_accuracy = calculate_accuracy(
+        model=model, data=train_data, target=train_target, accuracy_type="train"
+    )
+    test_accuracy = calculate_accuracy(
+        model=model, data=val_data, target=val_target, accuracy_type="test"
+    )
