@@ -73,11 +73,13 @@ def save_model(model: IrisClassificationModel, artifact_name: str) -> None:
 
 
 @task
-def test_model_deployment(artifact_name: str, target_names: any, test_input: any) -> None:
+def test_model_deployment(artifact_name: str, target_names: any) -> None:
+    test_input = [5.9, 3.0, 5.1, 1.8]
+
     test_runner = bentoml.pytorch.load_runner(tag=artifact_name)
     x = Variable(torch.FloatTensor(test_input))
     prediction = test_runner.run(x)
-    print(target_names[np.where(prediction == 1)[0]])
+    print(target_names[np.where(prediction == 1.0)[0]])
 
 
 @task
@@ -99,7 +101,6 @@ def my_wf() -> (pd.DataFrame, pd.DataFrame):
     # flyte takes that seriously
 
     artifact_name = "iris_classifier"
-    test_input = [5.9, 3.0, 5.1, 1.8]
 
     data, target, target_names, feature_names = get_iris_data()
     scaled_data = scale_iris_data(data=data)
@@ -115,7 +116,7 @@ def my_wf() -> (pd.DataFrame, pd.DataFrame):
     )
 
     save_model(model=model, artifact_name=artifact_name)
-    test_model_deployment(artifact_name=artifact_name, target_names=target_names, test_input=test_input)
+    test_model_deployment(artifact_name=artifact_name, target_names=target_names)
     build_bentoml_service()
 
     return _train_accuracy, _test_accuracy
