@@ -11,6 +11,7 @@ except ImportError:
     from .model import IrisClassificationModel
     from .datasource import load_iris_dataset, scale_iris_dataset, train_test_data_split
 import os
+import time
 import torch
 import wandb
 import bentoml
@@ -24,6 +25,7 @@ from flytekit import task, workflow
 wandb.init(
     project="iris-classifier",
     entity=os.environ.get("WANDB_USERNAME", "aliabbasjaffri"),
+    group=f"expr_{time.time()}",
 )
 
 
@@ -75,11 +77,14 @@ def save_model(model: IrisClassificationModel, artifact_name: str) -> None:
 @task
 def test_model_deployment(artifact_name: str, target_names: any) -> None:
     test_input = [5.9, 3.0, 5.1, 1.8]
+    test_output = "virginica"
 
     test_runner = bentoml.pytorch.load_runner(tag=artifact_name)
     x = Variable(torch.FloatTensor(test_input))
     prediction = test_runner.run(x)
     print(target_names[np.where(prediction == 1.0)[0]])
+
+    assert test_output == target_names[np.where(prediction == 1.0)[0]]
 
 
 @task
